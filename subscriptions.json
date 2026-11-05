@@ -1,5 +1,24 @@
 {
   "version": "1.0",
-  "exportedAt": "2026-11-05T13:13:40.023Z",
-  "subscriptions": []
+  "exportedAt": "2026-11-05T13:38:34.061Z",
+  "subscriptions": [
+    {
+      "id": "sub_1793885913059_iprnkyjcx",
+      "name": "小米Mimo",
+      "category": "tools",
+      "account": "",
+      "currency": "¥",
+      "price": 99,
+      "cycle": {
+        "type": "months",
+        "value": 1
+      },
+      "startDate": "2026-10-22",
+      "nextRenewalDate": "2026-11-22",
+      "status": "active",
+      "notes": "",
+      "updatedAt": "2026-11-05T13:38:33.059Z",
+      "createdAt": "2026-11-05T13:38:33.059Z"
+    }
+  ]
 }
