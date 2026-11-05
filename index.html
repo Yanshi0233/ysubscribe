@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订阅管理器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        :root {
+            --bg-primary: #f9f5f1;
+            --bg-secondary: #eff1e4;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #141414;
+            --text-secondary: #838280;
+            --accent: #d8cab1;
+            --accent-light: #e8dcc7;
+            --accent-dark: #c4b59a;
+            --border: #e5e5e5;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3efe7;
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 0;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-sm);
+            animation: fadeSlideDown 0.5s ease-out;
+        }
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+        .header h1 i { color: var(--accent); font-size: 1.4rem; }
+        .header p {
+            margin: 0.25rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn-toolbar {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.875rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-toolbar:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-toolbar-accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #5a4a3a;
+        }
+        .btn-toolbar-accent:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+            color: #4a3a2a;
+            box-shadow: 0 4px 12px rgba(216, 202, 177, 0.3);
+        }
+        .stats-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover::before { transform: scaleX(1); }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }        .stats-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-tertiary);
+            color: var(--accent);
+        }
+        .stats-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        .stats-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .search-bar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        .search-bar:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(216, 202, 177, 0.1);
+        }
+        .search-bar .input-group-text {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+        }
+        .search-bar .form-control {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .search-bar .form-control::placeholder { color: var(--text-secondary); }
+        .filter-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            transition: var(--transition);
+        }
+        .filter-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(216, 202, 177, 0.1);
+        }
+        .subscription-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .subscription-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        .subscription-card.cancelled { opacity: 0.6; }
+        .card-header-custom {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .subscription-card.cancelled .card-header-custom {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+        }
+        .subscription-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+        .price-badge {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: rgba(255,255,255,0.2);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+        }
+        .cycle-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            margin-top: 0.25rem;
+            display: inline-block;
+        }
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            font-weight: 600;
+        }
+        .status-badge.expiring {
+            background: rgba(239, 68, 68, 0.85);
+        }
+        .card-body-custom { padding: 1.25rem 1.5rem; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+        .info-row:last-of-type { border-bottom: none; }
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+        }
+        .info-label i { color: var(--accent); }
+        .info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .renewal-soon {
+            color: #ef4444;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+        .btn-action {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+        .btn-action.btn-edit { color: var(--accent); border-color: var(--accent); }
+        .btn-action.btn-edit:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .btn-action.btn-cancel-sub { color: #f59e0b; border-color: #f59e0b; }
+        .btn-action.btn-cancel-sub:hover {
+            background: #f59e0b;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .btn-action.btn-delete { color: #ef4444; border-color: #ef4444; }
+        .btn-action.btn-delete:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .empty-state-icon i { font-size: 2rem; color: var(--accent); }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .modal-content {
+            border: none;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            background: #ffffff;
+        }
+        .modal-header-custom {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            border: none;
+            padding: 1.25rem 1.5rem;
+        }
+        .modal-header-custom .btn-close { filter: brightness(0) invert(1); }
+        .modal-title { font-weight: 600; }
+        .form-section {
+            background: #fafafa;
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-control, .form-select {
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            padding: 0.625rem 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            background: var(--bg-primary);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(216, 202, 177, 0.1);
+        }
+        .input-group-text {
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+        .modal-footer .btn {
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .modal-footer .btn-primary {
+            background: var(--accent);
+            border: none;
+        }
+        .modal-footer .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(216, 202, 177, 0.3);
+        }
+        .btn-sync {
+            background: var(--accent) !important;
+            border: none !important;
+            color: #5a4a3a !important;
+            font-weight: 600;
+        }
+        .btn-sync:hover {
+            background: var(--accent-dark) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(216, 202, 177, 0.3);
+        }
+        .alert {
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .alert-info {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+        .alert-success {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .modal-header.bg-danger { background: #ef4444 !important; }
+        .modal-footer .btn-danger { background: #ef4444; border: none; }
+        .modal-footer .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sync-toast {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+        .sync-toast-item {
+            background: #ffffff;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent-dark);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+            pointer-events: auto;
+        }
+        .sync-toast-item.error { border-left-color: #dc3545; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+        @media (max-width: 768px) {
+            .header-inner { flex-direction: column; text-align: center; }
+            .toolbar { width: 100%; justify-content: center; }
+            .header h1 { font-size: 1.5rem; }
+            .stats-number { font-size: 1.5rem; }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .form-check-input:focus {
+            box-shadow: 0 0 0 3px rgba(216, 202, 177, 0.1);
+            border-color: var(--accent);
+        }
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
+            margin-top: 0.35rem;
+        }
+        .category-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .category-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.75rem 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .category-option:hover {
+            border-color: var(--accent);
+            color: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+        .category-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            color: var(--accent-dark);
+        }
+        .category-option i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-inner">
+                <div>
+                    <h1><i class="bi bi-stars"></i> 订阅管理器</h1>
+                    <p>管理您的订阅服务，掌控每一笔支出</p>
+                </div>
+                <div class="toolbar">
+                    <button class="btn-toolbar" id="btnImport">
+                        <i class="bi bi-upload"></i> 导入
+                    </button>
+                    <button class="btn-toolbar" id="btnExport">
+                        <i class="bi bi-download"></i> 导出
+                    </button>
+                    <button class="btn-toolbar" id="btnGithub">
+                        <i class="fa-brands fa-github"></i> 同步
+                    </button>
+                    <button class="btn-toolbar btn-toolbar-accent" id="btnAdd">
+                        <i class="bi bi-plus-lg"></i> 新增订阅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row mb-4 g-3" id="statsRow">
+            <div class="col-md-3 col-6">
+                <div class="stats-card">
+                    <div class="stats-icon"><i class="bi bi-collection"></i></div>
+                    <div class="stats-number" id="totalCount">0</div>
+                    <div class="stats-label">订阅总数</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card">
+                    <div class="stats-icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="stats-number" id="activeCount">0</div>
+                    <div class="stats-label">进行中</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card">
+                    <div class="stats-icon" style="color: #ef4444;"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="stats-number" id="expiringCount">0</div>
+                    <div class="stats-label">即将到期</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card">
+                    <div class="stats-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="stats-number" id="monthlyCost">¥0</div>
+                    <div class="stats-label">月均支出</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4 g-3">
+            <div class="col-md-5">
+                <div class="input-group search-bar">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" tabindex="-1" autocomplete="off">
+                    <input type="text" class="form-control" id="searchInput" placeholder="" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');" name="search">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select filter-select w-100" id="filterCategory">
+                    <option value="all">全部分类</option>
+                    <option value="music">音乐</option>
+                    <option value="video">视频</option>
+                    <option value="tools">工具</option>
+                    <option value="chat">聊天</option>
+                    <option value="game">游戏</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select filter-select w-100" id="filterStatus">
+                    <option value="all">全部状态</option>
+                    <option value="active">进行中</option>
+                    <option value="expiring">7日内到期</option>
+                    <option value="cancelled">已取消</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row" id="subscriptionList">
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="subscriptionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="modalTitle">新增订阅</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="subscriptionForm">
+                        <input type="hidden" id="editId">
+                        
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="bi bi-person-lines-fill"></i> 基本信息</div>
+                            <div class="mb-3">
+                                <label class="form-label">订阅名称 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="subName" required placeholder="例如：Netflix、Spotify">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">订阅分类 <span class="text-danger">*</span></label>
+                                <div class="category-selector" id="categorySelector">
+                                    <div class="category-option" data-category="music">
+                                        <i class="fa-solid fa-music"></i>
+                                        <span>音乐</span>
+                                    </div>
+                                    <div class="category-option" data-category="video">
+                                        <i class="fa-solid fa-video"></i>
+                                        <span>视频</span>
+                                    </div>
+                                    <div class="category-option" data-category="tools">
+                                        <i class="fa-solid fa-wrench"></i>
+                                        <span>工具</span>
+                                    </div>
+                                    <div class="category-option" data-category="chat">
+                                        <i class="fa-solid fa-message"></i>
+                                        <span>聊天</span>
+                                    </div>
+                                    <div class="category-option" data-category="game">
+                                        <i class="fa-solid fa-gamepad"></i>
+                                        <span>游戏</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="subCategory" required>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label">订阅账号</label>
+                                <input type="text" class="form-control" id="subAccount" placeholder="邮箱或用户名">
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="bi bi-credit-card"></i> 费用信息</div>
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <label class="form-label">货币</label>
+                                    <select class="form-select" id="subCurrency">
+                                        <option value="¥">¥ CNY</option>
+                                        <option value="$">$ USD</option>
+                                        <option value="€">€ EUR</option>
+                                        <option value="£">£ GBP</option>
+                                        <option value="¥">¥ JPY</option>
+                                    </select>
+                                </div>
+                                <div class="col-8">
+                                    <label class="form-label">费用金额 <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="subPrice" step="0.01" required placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="bi bi-arrow-repeat"></i> 续费周期</div>
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <label class="form-label">周期类型 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="subCycleType" required>
+                                        <option value="days">天</option>
+                                        <option value="months" selected>月</option>
+                                        <option value="years">年</option>
+                                        <option value="lifetime">终身</option>
+                                    </select>
+                                </div>
+                                <div class="col-8" id="cycleValueGroup">
+                                    <label class="form-label">周期数值</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">每</span>
+                                        <input type="number" class="form-control" id="subCycleValue" min="1" value="1">
+                                        <span class="input-group-text" id="cycleUnit">月</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title"><i class="bi bi-calendar3"></i> 日期信息</div>
+                            <div class="mb-3">
+                                <label class="form-label">订阅开始日期 <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="subStartDate" required>
+                            </div>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" id="subCancelled">
+                                <label class="form-check-label" for="subCancelled">
+                                    已停止续订（取消订阅）
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" id="subNotes" rows="2" placeholder="可选备注信息..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnSave">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title">导入订阅</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">选择 .ysubscribe 文件</label>
+                        <input type="file" class="form-control" id="importFile" accept=".ysubscribe,.json">
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> 导入将合并现有数据，不会覆盖已有订阅。
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnDoImport">导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title">导出订阅</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">文件名</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="exportFilename" value="我的订阅">
+                            <span class="input-group-text">.ysubscribe</span>
+                        </div>
+                        <div class="form-text">请输入文件名，系统将自动添加 .ysubscribe 后缀</div>
+                    </div>
+                    <div class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle"></i> 将导出 <strong id="exportCount">0</strong> 条订阅记录
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnDoExport">
+                        <i class="bi bi-download"></i> 导出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Sync Modal -->
+    <div class="modal fade" id="githubModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title"><i class="fa-brands fa-github me-2"></i>GitHub 同步</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="form-section p-3 mb-3">
+                        <h6 class="mb-3"><i class="bi bi-gear me-1"></i>仓库设置</h6>
+                        <div class="mb-3">
+                            <label class="form-label">GitHub 用户名</label>
+                            <input type="text" class="form-control" id="ghUsername" placeholder="your-username">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">仓库名称</label>
+                            <input type="text" class="form-control" id="ghRepo" placeholder="ysubscribe" value="ysubscribe">
+                            <div class="form-text">需要提前创建仓库，并授予 <code>Contents: Read and write</code> 权限</div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Personal Access Token</label>
+                            <input type="password" class="form-control" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+                            <div class="form-text">需要 <code>repo</code> 权限的 <a href="https://github.com/settings/tokens" target="_blank">GitHub Token</a></div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary flex-fill btn-sync" id="btnGithubPull">
+                            <i class="bi bi-cloud-download me-1"></i> 从 GitHub 拉取
+                        </button>
+                        <button type="button" class="btn btn-secondary flex-fill btn-sync" id="btnGithubPush">
+                            <i class="bi bi-cloud-upload me-1"></i> 推送到 GitHub
+                        </button>
+                    </div>
+                    <div id="githubStatus" class="alert mt-3 mb-0 d-none"></div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" id="btnSaveGithubSettings">
+                        <i class="bi bi-check-lg me-1"></i> 保存设置
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p>确定要删除订阅 <strong id="deleteName"></strong> 吗？</p>
+                    <p class="text-danger small mb-0">此操作无法撤销。</p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sync-toast" id="syncToast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(function() {
+        const STORAGE_KEY = 'y_subscriptions';
+        let subscriptions = [];
+        let deleteTargetId = null;
+
+        // Initialize
+        loadData();
+        renderAll();
+        setDefaultStartDate();
+
+        // Load data from localStorage
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    subscriptions = JSON.parse(stored);
+                } catch (e) {
+                    subscriptions = [];
+                }
+            }
+        }
+
+        // Save data to localStorage
+        function showSyncToast(message, isError) {
+            const $toast = $('#syncToast');
+            const cls = isError ? 'sync-toast-item error' : 'sync-toast-item';
+            const $item = $('<div>').addClass(cls).text(message);
+            $toast.append($item);
+            setTimeout(function() { $item.remove(); }, 2500);
+        }
+
+        let _syncTimer = null;
+        function autoSyncToGithub() {
+            clearTimeout(_syncTimer);
+            _syncTimer = setTimeout(async function() {
+                const settings = getGithubSettings();
+                if (!settings.username || !settings.token || !settings.repo) return;
+
+                try {
+                    const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/subscriptions.json`;
+                    const content = btoa(unescape(encodeURIComponent(JSON.stringify({
+                        version: '1.0',
+                        exportedAt: new Date().toISOString(),
+                        subscriptions: subscriptions
+                    }, null, 2))));
+
+                    let sha = null;
+                    try {
+                        const res = await fetch(url, {
+                            headers: { 'Authorization': `token ${settings.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                        });
+                        if (res.ok) sha = (await res.json()).sha;
+                    } catch (e) {}
+
+                    const body = { message: 'Auto sync', content: content };
+                    if (sha) body.sha = sha;
+
+                    const res = await fetch(url, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `token ${settings.token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+
+                    if (res.ok) {
+                        showSyncToast('同步成功', false);
+                    } else {
+                        const detail = await res.json().catch(function() { return { message: res.statusText }; });
+                        showSyncToast('同步失败: ' + (detail.message || res.statusText), true);
+                    }
+                } catch (err) {
+                    showSyncToast('同步失败: ' + err.message, true);
+                }
+            }, 1000);
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(subscriptions));
+            autoSyncToGithub();
+        }
+
+        // Generate UUID
+        function generateId() {
+            return 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Set default start date to today
+        function setDefaultStartDate() {
+            const today = new Date().toISOString().split('T')[0];
+            $('#subStartDate').val(today);
+        }
+
+        // Calculate next renewal date
+        function calcNextRenewal(startDate, cycleType, cycleValue) {
+            if (cycleType === 'lifetime') return null;
+            
+            const start = new Date(startDate);
+            const now = new Date();
+            let next = new Date(start);
+
+            while (next <= now) {
+                switch (cycleType) {
+                    case 'days':
+                        next.setDate(next.getDate() + cycleValue);
+                        break;
+                    case 'months':
+                        next.setMonth(next.getMonth() + cycleValue);
+                        break;
+                    case 'years':
+                        next.setFullYear(next.getFullYear() + cycleValue);
+                        break;
+                }
+            }
+            return next.toISOString().split('T')[0];
+        }
+
+        // Format cycle display
+        function formatCycle(cycle) {
+            const typeMap = { days: '天', months: '月', years: '年', lifetime: '终身' };
+            if (cycle.type === 'lifetime') return '终身';
+            return `每 ${cycle.value} ${typeMap[cycle.type]}`;
+        }
+
+        // Check if renewal is soon (within 7 days)
+        function isRenewalSoon(dateStr) {
+            if (!dateStr) return false;
+            const renewal = new Date(dateStr);
+            const now = new Date();
+            const diff = (renewal - now) / (1000 * 60 * 60 * 24);
+            return diff >= 0 && diff <= 7;
+        }
+
+        // Calculate monthly cost for a subscription
+        function calcMonthlyCost(sub) {
+            if (sub.status === 'cancelled') return 0;
+            const price = parseFloat(sub.price) || 0;
+            switch (sub.cycle.type) {
+                case 'days':
+                    return price * 30 / sub.cycle.value;
+                case 'months':
+                    return price / sub.cycle.value;
+                case 'years':
+                    return price / 12 / sub.cycle.value;
+                case 'lifetime':
+                    return 0;
+                default:
+                    return 0;
+            }
+        }
+
+        // Category keywords mapping for auto-detection
+        const categoryKeywords = {
+            music: ['音乐', '网易云', 'qq音乐', 'spotify', 'apple music', '酷狗', '酷我', '虾米', '咪咕音乐', '声破天', 'tidal', 'deezer', 'youtube music', 'amazon music'],
+            video: ['视频', 'netflix', '爱奇艺', '优酷', '腾讯视频', 'b站', 'bilibili', '芒果tv', 'youtube', 'disney', 'hbo', '奈飞', 'hulu', 'prime video', 'pptv', '搜狐视频'],
+            tools: ['工具', 'office', 'adobe', 'photoshop', '备忘录', '网盘', '云盘', 'icloud', 'dropbox', 'onedrive', 'github', 'notion', 'figma', 'wps', 'canva', 'slack', 'zoom', 'teams'],
+            chat: ['聊天', 'wechat', '微信', 'qq', 'telegram', 'whatsapp', 'discord', 'line', 'fb messenger', 'facebook messenger', 'skype', 'viber', 'kakao'],
+            game: ['游戏', 'steam', 'xbox', 'playstation', 'ps plus', 'game pass', 'nintendo', 'ea play', 'ubisoft', 'epic games', 'origin', 'gog', 'twitch']
+        };
+
+        // Auto-detect category from subscription name
+        function detectCategory(name) {
+            const lowerName = name.toLowerCase();
+            for (const [category, keywords] of Object.entries(categoryKeywords)) {
+                if (keywords.some(keyword => lowerName.includes(keyword.toLowerCase()))) {
+                    return category;
+                }
+            }
+            return null;
+        }
+
+        // Get category info
+        function getCategoryInfo(category) {
+            const categories = {
+                music: { name: '音乐', icon: 'fa-solid fa-music' },
+                video: { name: '视频', icon: 'fa-solid fa-video' },
+                tools: { name: '工具', icon: 'fa-solid fa-wrench' },
+                chat: { name: '聊天', icon: 'fa-solid fa-message' },
+                game: { name: '游戏', icon: 'fa-solid fa-gamepad' }
+            };
+            return categories[category] || { name: '其他', icon: 'fa-solid fa-tag' };
+        }
+
+        // Render statistics
+        function renderStats() {
+            const active = subscriptions.filter(s => s.status === 'active');
+            const expiring = subscriptions.filter(s => s.status === 'active' && isRenewalSoon(s.nextRenewalDate));
+            const monthlyTotal = subscriptions.reduce((sum, s) => sum + calcMonthlyCost(s), 0);
+
+            $('#totalCount').text(subscriptions.length);
+            $('#activeCount').text(active.length);
+            $('#expiringCount').text(expiring.length);
+            $('#monthlyCost').text('¥' + monthlyTotal.toFixed(0));
+        }
+
+        // Render subscription list
+        function renderList(filteredSubs) {
+            const list = filteredSubs || getFilteredSubscriptions();
+            const $container = $('#subscriptionList');
+            $container.empty();
+
+            if (list.length === 0) {
+                $container.html(`
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                            <h4>暂无订阅</h4>
+                            <p>点击"新增订阅"开始管理您的订阅服务</p>
+                        </div>
+                    </div>
+                `);
+                return;
+            }
+
+            list.forEach((sub, idx) => {
+                const isCancelled = sub.status === 'cancelled';
+                const renewalSoon = !isCancelled && isRenewalSoon(sub.nextRenewalDate);
+                const delay = Math.min(idx * 0.05, 0.3);
+                const categoryInfo = getCategoryInfo(sub.category);
+                
+                const card = `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="subscription-card ${isCancelled ? 'cancelled' : ''}" style="animation: fadeSlideUp 0.4s ease-out ${delay}s backwards">
+                            <div class="card-header-custom position-relative">
+                                <div>
+                                    <h5 class="subscription-name">${escapeHtml(sub.name)}</h5>
+                                    <span class="cycle-badge">${formatCycle(sub.cycle)}</span>
+                                    <span class="category-badge"><i class="${categoryInfo.icon}"></i> ${categoryInfo.name}</span>
+                                </div>
+                                <span class="price-badge">${sub.currency}${parseFloat(sub.price).toFixed(2)}</span>
+                                ${isCancelled ? '<span class="status-badge">已取消</span>' : (renewalSoon ? '<span class="status-badge expiring">7日内到期</span>' : '')}
+                            </div>
+                            <div class="card-body-custom">
+                                ${sub.account ? `
+                                <div class="info-row">
+                                    <span class="info-label"><i class="bi bi-person"></i> 账号</span>
+                                    <span class="info-value">${escapeHtml(sub.account)}</span>
+                                </div>` : ''}
+                                <div class="info-row">
+                                    <span class="info-label"><i class="bi bi-calendar3"></i> 开始日期</span>
+                                    <span class="info-value">${sub.startDate}</span>
+                                </div>
+                                ${sub.nextRenewalDate ? `
+                                <div class="info-row">
+                                    <span class="info-label"><i class="bi bi-arrow-repeat"></i> 下次续费</span>
+                                    <span class="info-value ${renewalSoon ? 'renewal-soon' : ''}">${sub.nextRenewalDate}${renewalSoon ? ' ⚠️' : ''}</span>
+                                </div>` : ''}
+                                ${sub.notes ? `
+                                <div class="info-row">
+                                    <span class="info-label"><i class="bi bi-chat-left-text"></i> 备注</span>
+                                    <span class="info-value small">${escapeHtml(sub.notes)}</span>
+                                </div>` : ''}
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-edit" data-id="${sub.id}">
+                                        <i class="bi bi-pencil"></i> 编辑
+                                    </button>
+                                    ${!isCancelled ? `
+                                    <button class="btn-action btn-cancel-sub" data-id="${sub.id}">
+                                        <i class="bi bi-pause-circle"></i> 停止续订
+                                    </button>` : ''}
+                                    <button class="btn-action btn-delete" data-id="${sub.id}">
+                                        <i class="bi bi-trash3"></i> 删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $container.append(card);
+            });
+        }
+
+        // Get filtered subscriptions
+        function getFilteredSubscriptions() {
+            const search = $('#searchInput').val().toLowerCase();
+            const status = $('#filterStatus').val();
+            const category = $('#filterCategory').val();
+            
+            return subscriptions.filter(sub => {
+                const matchSearch = !search || 
+                    sub.name.toLowerCase().includes(search) ||
+                    (sub.account && sub.account.toLowerCase().includes(search));
+                const matchStatus = status === 'all' || (status === 'expiring' ? isRenewalSoon(sub.nextRenewalDate) : sub.status === status);
+                const matchCategory = category === 'all' || sub.category === category;
+                return matchSearch && matchStatus && matchCategory;
+            });
+        }
+
+        // Render all
+        function renderAll() {
+            renderStats();
+            renderList();
+        }
+
+        // Escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+
+        // Category selector click
+        $(document).on('click', '.category-option', function() {
+            $('.category-option').removeClass('selected');
+            $(this).addClass('selected');
+            $('#subCategory').val($(this).data('category'));
+        });
+
+        // Auto-detect category from name
+        $('#subName').on('input', function() {
+            const detected = detectCategory($(this).val().trim());
+            if (detected) {
+                $('.category-option').removeClass('selected');
+                $('.category-option[data-category="' + detected + '"]').addClass('selected');
+                $('#subCategory').val(detected);
+            }
+        });
+
+        // Open add modal
+        $('#btnAdd').click(function() {
+            $('#editId').val('');
+            $('#modalTitle').text('新增订阅');
+            $('#subscriptionForm')[0].reset();
+            $('.category-option').removeClass('selected');
+            $('#subCategory').val('');
+            setDefaultStartDate();
+            $('#subCycleType').trigger('change');
+            new bootstrap.Modal('#subscriptionModal').show();
+        });
+
+        // Cycle type change
+        $('#subCycleType').change(function() {
+            const isLifetime = $(this).val() === 'lifetime';
+            if (isLifetime) {
+                $('#cycleValueGroup').hide();
+            } else {
+                $('#cycleValueGroup').show();
+                const unitMap = { days: '天', months: '月', years: '年' };
+                $('#cycleUnit').text(unitMap[$(this).val()]);
+            }
+        });
+
+        // Save subscription
+        $('#btnSave').click(function() {
+            const form = $('#subscriptionForm');
+            if (!form[0].checkValidity()) {
+                form[0].reportValidity();
+                return;
+            }
+
+            const editId = $('#editId').val();
+            const cycleType = $('#subCycleType').val();
+            const cycleValue = cycleType === 'lifetime' ? 1 : parseInt($('#subCycleValue').val()) || 1;
+            const startDate = $('#subStartDate').val();
+            const isCancelled = $('#subCancelled').is(':checked');
+
+            const sub = {
+                id: editId || generateId(),
+                name: $('#subName').val().trim(),
+                category: $('#subCategory').val() || 'tools',
+                account: $('#subAccount').val().trim(),
+                currency: $('#subCurrency').val(),
+                price: parseFloat($('#subPrice').val()) || 0,
+                cycle: { type: cycleType, value: cycleValue },
+                startDate: startDate,
+                nextRenewalDate: calcNextRenewal(startDate, cycleType, cycleValue),
+                status: isCancelled ? 'cancelled' : 'active',
+                notes: $('#subNotes').val().trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editId) {
+                const idx = subscriptions.findIndex(s => s.id === editId);
+                if (idx !== -1) {
+                    sub.createdAt = subscriptions[idx].createdAt;
+                    subscriptions[idx] = sub;
+                }
+            } else {
+                sub.createdAt = sub.updatedAt;
+                subscriptions.push(sub);
+            }
+
+            saveData();
+            renderAll();
+            bootstrap.Modal.getInstance('#subscriptionModal').hide();
+        });
+
+        // Edit subscription
+        $(document).on('click', '.btn-edit', function() {
+            const id = $(this).data('id');
+            const sub = subscriptions.find(s => s.id === id);
+            if (!sub) return;
+
+            $('#editId').val(sub.id);
+            $('#modalTitle').text('编辑订阅');
+            $('#subName').val(sub.name);
+            $('#subAccount').val(sub.account || '');
+            $('#subCurrency').val(sub.currency);
+            $('#subPrice').val(sub.price);
+            $('#subCycleType').val(sub.cycle.type);
+            $('#subCycleValue').val(sub.cycle.value);
+            $('#subStartDate').val(sub.startDate);
+            $('#subCancelled').prop('checked', sub.status === 'cancelled');
+            $('#subNotes').val(sub.notes || '');
+            $('#subCycleType').trigger('change');
+
+            $('.category-option').removeClass('selected');
+            if (sub.category) {
+                $('.category-option[data-category="' + sub.category + '"]').addClass('selected');
+                $('#subCategory').val(sub.category);
+            }
+
+            new bootstrap.Modal('#subscriptionModal').show();
+        });
+
+        // Cancel subscription
+        $(document).on('click', '.btn-cancel-sub', function() {
+            const id = $(this).data('id');
+            const sub = subscriptions.find(s => s.id === id);
+            if (sub) {
+                sub.status = 'cancelled';
+                sub.nextRenewalDate = null;
+                sub.updatedAt = new Date().toISOString();
+                saveData();
+                renderAll();
+            }
+        });
+
+        // Delete subscription
+        $(document).on('click', '.btn-delete', function() {
+            deleteTargetId = $(this).data('id');
+            const sub = subscriptions.find(s => s.id === deleteTargetId);
+            $('#deleteName').text(sub ? sub.name : '');
+            new bootstrap.Modal('#deleteModal').show();
+        });
+
+        // Confirm delete
+        $('#btnConfirmDelete').click(function() {
+            if (deleteTargetId) {
+                subscriptions = subscriptions.filter(s => s.id !== deleteTargetId);
+                saveData();
+                renderAll();
+                deleteTargetId = null;
+            }
+            bootstrap.Modal.getInstance('#deleteModal').hide();
+        });
+
+        // Search and filter
+        $('#searchInput, #filterStatus, #filterCategory').on('input change', function() {
+            renderList();
+        });
+
+        // Export
+        $('#btnExport').click(function() {
+            $('#exportCount').text(subscriptions.length);
+            $('#exportFilename').val('我的订阅_' + new Date().toISOString().split('T')[0]);
+            new bootstrap.Modal('#exportModal').show();
+        });
+
+        $('#btnDoExport').click(function() {
+            const filename = ($('#exportFilename').val().trim() || '订阅数据') + '.ysubscribe';
+            const data = {
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                subscriptions: subscriptions
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            bootstrap.Modal.getInstance('#exportModal').hide();
+        });
+
+        // Import
+        $('#btnImport').click(function() {
+            $('#importFile').val('');
+            new bootstrap.Modal('#importModal').show();
+        });
+
+        $('#btnDoImport').click(function() {
+            const file = $('#importFile')[0].files[0];
+            if (!file) {
+                alert('请选择文件');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.subscriptions && Array.isArray(data.subscriptions)) {
+                        const existingIds = new Set(subscriptions.map(s => s.id));
+                        let imported = 0;
+                        data.subscriptions.forEach(sub => {
+                            if (!existingIds.has(sub.id)) {
+                                subscriptions.push(sub);
+                                imported++;
+                            }
+                        });
+                        saveData();
+                        renderAll();
+                        bootstrap.Modal.getInstance('#importModal').hide();
+                        alert(`成功导入 ${imported} 条订阅记录`);
+                    } else {
+                        alert('文件格式不正确');
+                    }
+                } catch (err) {
+                    alert('文件解析失败：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // GitHub Sync
+        const GITHUB_SETTINGS_KEY = 'y_github_settings';
+
+        function setCookie(name, value) {
+            document.cookie = name + '=' + encodeURIComponent(value) + '; path=/; SameSite=Strict';
+        }
+
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+
+        function loadGithubSettings() {
+            const saved = getCookie(GITHUB_SETTINGS_KEY);
+            if (saved) {
+                const settings = JSON.parse(saved);
+                $('#ghUsername').val(settings.username || '');
+                $('#ghRepo').val(settings.repo || 'ysubscribe');
+                $('#ghToken').val(settings.token || '');
+            }
+        }
+
+        function saveGithubSettings() {
+            const settings = {
+                username: $('#ghUsername').val().trim(),
+                repo: $('#ghRepo').val().trim() || 'ysubscribe',
+                token: $('#ghToken').val().trim()
+            };
+            setCookie(GITHUB_SETTINGS_KEY, JSON.stringify(settings));
+            return settings;
+        }
+
+        function getGithubSettings() {
+            const saved = getCookie(GITHUB_SETTINGS_KEY);
+            if (saved) return JSON.parse(saved);
+            return { username: '', repo: 'ysubscribe', token: '' };
+        }
+
+        function showGithubStatus(message, type) {
+            const $status = $('#githubStatus');
+            $status.removeClass('d-none alert-success alert-danger alert-info').addClass('alert-' + type).text(message);
+        }
+
+        function hideGithubStatus() {
+            $('#githubStatus').addClass('d-none');
+        }
+
+        $('#btnGithub').click(function() {
+            loadGithubSettings();
+            hideGithubStatus();
+            new bootstrap.Modal('#githubModal').show();
+        });
+
+        $('#btnSaveGithubSettings').click(function() {
+            saveGithubSettings();
+            showGithubStatus('设置已保存', 'success');
+            setTimeout(hideGithubStatus, 2000);
+        });
+
+        $('#btnGithubPull').click(async function() {
+            const settings = saveGithubSettings();
+            if (!settings.username || !settings.token) {
+                showGithubStatus('请填写用户名和 Token', 'danger');
+                return;
+            }
+
+            showGithubStatus('正在拉取数据...', 'info');
+            $(this).prop('disabled', true);
+
+            try {
+                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/subscriptions.json`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${settings.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('仓库或文件不存在，请先推送数据');
+                    }
+                    throw new Error('拉取失败: ' + response.statusText);
+                }
+
+                const data = await response.json();
+                const content = atob(data.content);
+                const parsed = JSON.parse(content);
+
+                if (parsed.subscriptions && Array.isArray(parsed.subscriptions)) {
+                    subscriptions = parsed.subscriptions;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(subscriptions));
+                    renderAll();
+                    showGithubStatus(`成功拉取 ${subscriptions.length} 条订阅记录`, 'success');
+                    showSyncToast('同步成功', false);
+                } else {
+                    throw new Error('文件格式不正确');
+                }
+            } catch (err) {
+                showGithubStatus('拉取失败: ' + err.message, 'danger');
+            } finally {
+                $(this).prop('disabled', false);
+            }
+        });
+
+        $('#btnGithubPush').click(async function() {
+            const settings = saveGithubSettings();
+            if (!settings.username || !settings.token) {
+                showGithubStatus('请填写用户名和 Token', 'danger');
+                return;
+            }
+
+            showGithubStatus('正在推送数据...', 'info');
+            $(this).prop('disabled', true);
+
+            try {
+                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/subscriptions.json`;
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify({
+                    version: '1.0',
+                    exportedAt: new Date().toISOString(),
+                    subscriptions: subscriptions
+                }, null, 2))));
+
+                // Check if file exists to get SHA
+                let sha = null;
+                try {
+                    const checkResponse = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${settings.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (checkResponse.ok) {
+                        const existing = await checkResponse.json();
+                        sha = existing.sha;
+                    }
+                } catch (e) {}
+
+                const body = {
+                    message: 'Update subscriptions',
+                    content: content
+                };
+                if (sha) body.sha = sha;
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${settings.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    const detail = await response.json().catch(function() { return { message: response.statusText }; });
+                    throw new Error(detail.message || response.statusText);
+                }
+
+                showGithubStatus(`成功推送 ${subscriptions.length} 条订阅记录`, 'success');
+                showSyncToast('同步成功', false);
+            } catch (err) {
+                showGithubStatus('推送失败: ' + err.message, 'danger');
+                showSyncToast('推送失败', true);
+            } finally {
+                $(this).prop('disabled', false);
+            }
+        });
+    });
+    </script>
+</body>
+</html>
