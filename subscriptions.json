@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "exportedAt": "2026-11-05T13:38:34.061Z",
+  "exportedAt": "2026-11-05T13:39:52.542Z",
   "subscriptions": [
     {
       "id": "sub_1793885913059_iprnkyjcx",
@@ -19,6 +19,24 @@
       "notes": "",
       "updatedAt": "2026-11-05T13:38:33.059Z",
       "createdAt": "2026-11-05T13:38:33.059Z"
+    },
+    {
+      "id": "sub_1793885991537_ywuxwnvwi",
+      "name": "QQ音乐季卡",
+      "category": "music",
+      "account": "",
+      "currency": "¥",
+      "price": 32.85,
+      "cycle": {
+        "type": "months",
+        "value": 3
+      },
+      "startDate": "2026-10-14",
+      "nextRenewalDate": "2027-01-14",
+      "status": "active",
+      "notes": "",
+      "updatedAt": "2026-11-05T13:39:51.537Z",
+      "createdAt": "2026-11-05T13:39:51.537Z"
     }
   ]
 }
