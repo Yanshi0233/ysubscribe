@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "exportedAt": "2026-11-05T13:40:00.284Z",
+  "exportedAt": "2026-11-05T13:40:16.227Z",
   "subscriptions": [
     {
       "id": "sub_1793885913059_iprnkyjcx",
@@ -32,10 +32,10 @@
         "value": 3
       },
       "startDate": "2026-10-14",
-      "nextRenewalDate": null,
-      "status": "cancelled",
+      "nextRenewalDate": "2027-01-14",
+      "status": "active",
       "notes": "",
-      "updatedAt": "2026-11-05T13:39:59.283Z",
+      "updatedAt": "2026-11-05T13:40:15.224Z",
       "createdAt": "2026-11-05T13:39:51.537Z"
     }
   ]
