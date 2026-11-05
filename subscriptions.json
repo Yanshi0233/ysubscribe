@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "exportedAt": "2026-11-05T13:40:40.241Z",
+  "exportedAt": "2026-11-05T13:45:19.293Z",
   "subscriptions": [
     {
       "id": "sub_1793885913059_iprnkyjcx",
@@ -37,6 +37,24 @@
       "notes": "",
       "updatedAt": "2026-11-05T13:40:15.224Z",
       "createdAt": "2026-11-05T13:39:51.537Z"
+    },
+    {
+      "id": "sub_1793886318289_3w9ktt4et",
+      "name": "网易云音乐",
+      "category": "music",
+      "account": "",
+      "currency": "¥",
+      "price": 15,
+      "cycle": {
+        "type": "months",
+        "value": 1
+      },
+      "startDate": "2026-10-10",
+      "nextRenewalDate": "2026-11-10",
+      "status": "active",
+      "notes": "",
+      "updatedAt": "2026-11-05T13:45:18.289Z",
+      "createdAt": "2026-11-05T13:45:18.289Z"
     }
   ]
 }
